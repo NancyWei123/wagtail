@@ -13,7 +13,7 @@ class UnpublishPagePermissionError(UnpublishPermissionError):
 
     pass
 
-
+# unpublish class
 class UnpublishPageAction(UnpublishAction):
     def __init__(
         self,

@@ -32,12 +32,15 @@ class DeletePageAction:
         # Ensure that deletion always happens on an instance of Page, not a specific subclass. This
         # works around a bug in treebeard <= 3.0 where calling SpecificPage.delete() fails to delete
         # child pages that are not instances of SpecificPage
+        # Check if we have a base Page instance
         if type(page) is Page:
+            # Log deletions for descendants
             for child in page.get_descendants().specific().iterator():
                 self.log_deletion(child)
             self.log_deletion(page.specific)
 
             # this is a Page instance, so carry on as we were
+            # Delete the Page instance
             return super(Page, page).delete(*args, **kwargs)
         else:
             # retrieve an actual Page instance and delete that instead of page

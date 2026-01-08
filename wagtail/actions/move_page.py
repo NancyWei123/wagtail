@@ -43,6 +43,8 @@ class MovePageAction:
         new_url_path = old_page.set_url_path(parent=parent_after)
         url_path_changed = old_url_path != new_url_path
 
+        # Sending pre_page_move is like saying: “Hey, Wagtail, I’m about to move this page — anyone who cares, do something before it happens!”
+        # It allows plugins, workflows, cache systems, or custom logic to inspect, validate, or prepare for the move before the page’s URL and tree structure actually change.
         # Emit pre_page_move signal
         pre_page_move.send(
             sender=page.specific_class or page.__class__,

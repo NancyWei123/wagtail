@@ -1,4 +1,5 @@
 from django.dispatch import Signal
+# signal is a way for one piece of code to notify something had happened
 
 # Generic object signals
 

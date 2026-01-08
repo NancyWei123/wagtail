@@ -9,7 +9,7 @@ from wagtail.api.v2.utils import BadRequestError
 
 from .base import APIAction
 
-
+# try to convert alias page
 class ConvertAliasPageAPIAction(APIAction):
     serializer = Serializer
 

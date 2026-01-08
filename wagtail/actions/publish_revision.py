@@ -110,6 +110,7 @@ class PublishRevisionAction:
     ):
         from wagtail.models import Revision
 
+        # Handle scheduled publishing
         if object.go_live_at and object.go_live_at > timezone.now():
             object.has_unpublished_changes = True
             # Instead set the approved_go_live_at of this revision
@@ -118,6 +119,7 @@ class PublishRevisionAction:
             # And clear the approved_go_live_at of any other revisions
             object.revisions.exclude(id=revision.id).update(approved_go_live_at=None)
             # if we are updating a currently live object skip the rest
+            # Early return for currently live object
             if object.live_revision_id:
                 # Log scheduled publishing
                 if log_action:
@@ -127,6 +129,7 @@ class PublishRevisionAction:
             # if we have a go_live in the future don't make the object live
             object.live = False
         else:
+            # Otherwise, make the object live
             object.live = True
             # at this point, the object has unpublished changes if and only if there are newer revisions than this one
             object.has_unpublished_changes = not revision.is_latest_revision()
@@ -144,6 +147,7 @@ class PublishRevisionAction:
             if object.first_published_at is None:
                 object.first_published_at = now
 
+            # Track previous revision for renaming/logging
             if previous_revision:
                 previous_revision_object = previous_revision.as_object()
                 old_object_title = (
@@ -165,10 +169,12 @@ class PublishRevisionAction:
             # Unset live_revision if the object is going live in the future
             object.live_revision = None
 
+        # Save object
         object.save()
 
         self._after_publish()
 
+        # Update live metadata
         if object.live:
             if log_action:
                 data = None

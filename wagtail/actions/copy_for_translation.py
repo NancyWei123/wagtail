@@ -26,7 +26,7 @@ class CopyForTranslationPermissionError(PermissionDenied):
 class CopyPageForTranslationPermissionError(CopyForTranslationPermissionError):
     pass
 
-
+# translate whole pages with all its children
 class CopyPageForTranslationAction:
     """
     Creates a copy of this page in the specified locale.
@@ -77,7 +77,7 @@ class CopyPageForTranslationAction:
             raise CopyPageForTranslationPermissionError(
                 "You do not have permission to submit a translation for this page."
             )
-
+    #Traverse all the child pages
     def walk(self, current_page):
         for child_page in current_page.get_children():
             translated_page = self._copy_for_translation(
@@ -98,6 +98,7 @@ class CopyPageForTranslationAction:
 
             self.walk(child_page)
 
+    # If errors occur, all the changes will be rolled back
     @transaction.atomic
     def _copy_for_translation(self, page, locale, copy_parents, alias, exclude_fields):
         # Find the translated version of the parent page to create the new page under
@@ -181,7 +182,7 @@ class CopyPageForTranslationAction:
 
         return translated_page
 
-
+# translate a single page
 class CopyForTranslationAction:
     """
     Creates a copy of this object in the specified locale.

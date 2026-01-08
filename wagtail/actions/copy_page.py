@@ -110,12 +110,14 @@ class CopyPageAction:
     def _copy_page(
         self, page, to=None, update_attrs=None, exclude_fields=None, _mpnode_attrs=None
     ):
+        # Determine which fields to exclude
         specific_page = page.specific
         exclude_fields = (
             specific_page.default_exclude_fields_in_copy
             + specific_page.exclude_fields_in_copy
             + (exclude_fields or [])
         )
+        # Set base attributes for the copy
         if self.keep_live:
             base_update_attrs = {
                 "alias_of": None,
@@ -140,9 +142,11 @@ class CopyPageAction:
         if update_attrs:
             base_update_attrs.update(update_attrs)
 
+        # Make the copy
         page_copy, child_object_map = _copy(
             specific_page, exclude_fields=exclude_fields, update_attrs=base_update_attrs
         )
+        # Process child objects
         # Save copied child objects and run process_child_object on them if we need to
         for (child_relation, old_pk), child_object in child_object_map.items():
             if self.process_child_object:
@@ -158,6 +162,7 @@ class CopyPageAction:
                 )
 
         # Save the new page
+        # Insert page into the tree
         if _mpnode_attrs:
             # We've got a tree position already reserved. Perform a quick save
             page_copy.path = _mpnode_attrs[0]
@@ -172,6 +177,7 @@ class CopyPageAction:
 
             _mpnode_attrs = (page_copy.path, page_copy.depth)
 
+        # Copy M2M relations
         _copy_m2m_relations(
             specific_page,
             page_copy,
